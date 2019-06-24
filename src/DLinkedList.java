@@ -11,146 +11,162 @@ public class DLinkedList<T> {
         size = 0;
     }
 
-    /**
-     * Verifica o tamanho da lista
-     *
-     * @return o tamanho da lista
-     */
     public long size() {
         return size;
     }
 
-    /**
-     * Verifica se a lista está vazia
-     *
-     * @return true se estiver vazia. Caso contrário, false
-     */
     public boolean isEmpty() {
         return size == 0;
     }
 
-    /**
-     * Remove todos os elementos da lista
-     */
     public void clear() {
         size = 0;
         head = null;
         tail = null;
     }
 
-    /**
-     * Retorna o primeiro elemento da lista
-     *
-     * @return O primeiro elemento da lista
-     * @throws NoSuchElementException Se a lista estiver vazia
-     */
     public T getFirst() {
-        if (isEmpty()) throw new NoSuchElementException("DLinkedList is empty");
+        if (isEmpty()) throw new NoSuchElementException("List is empty");
         return head.getValue();
     }
 
-    /**
-     * Retorna o último elemento da lista.
-     *
-     * @return O último elemento da lista
-     * @throws NoSuchElementException Se a lista estiver vazia
-     */
     public T getLast() {
-        if (isEmpty()) throw new NoSuchElementException("DLinkedList is empty");
+        if (isEmpty()) throw new NoSuchElementException("List is empty");
         return tail.getValue();
     }
-    /**
-     * Adiciona um elemento na cabeça da lista
-     * @param value
-     */
+
     public void addFirst(T value) {
         Node<T> first = new Node<T>();
-        first.setValue
-                (value);
-        first.setNext
-                (head);
-        if
-        (head == null) {
+        first.setValue(value);
+        first.setNext(head);
+        if (head == null) {
             tail = first;
         }
         head = first;
         size++;
     }
-    /**
-     * Adiciona um elemento na cauda da lista
-     * @param value
-     */
+
     public void addLast(T value) {
-        if(head == null) { // Ainda não possui head
+        if (head == null) {
             addFirst(value);
-        }else {
+        } else {
             Node<T> last = new Node<T>();
             last.setValue(value);
+            last.setPrevious(tail);
             tail.setNext(last);
             tail = last;
             size++;
         }
     }
-    /** complexidade?
-     * Remove e retorna o primeiro elemento da lista
-     * @return value
-     * @throws NoSuchElementException Se a lista estiver vazia
-     */
+
     public T removeFirst() {
-        if(isEmpty()) throw new NoSuchElementException("DLinkedList is empty");
+        if (isEmpty()) throw new NoSuchElementException("List is empty");
         T value = head.getValue();
         head = head.getNext();
+        head.setPrevious(null);
         size--;
         return value;
     }
-    /**
-     * Remove e retorna o último elemento da lista
-     * @return value
-     * @throws NoSuchElementException Se a lista estiver vazia
-     */
+
     public T removeLast() {
-        if(isEmpty()) throw new NoSuchElementException("DLinkedList is empty");
+        if (isEmpty()) throw new NoSuchElementException("List is empty");
         T value = tail.getValue();
         Node<T> temp = head;
-// Verifica se possui o próximo elemento
-// E verifica se o próximo elemento nao é a cauda
-        while(temp.getNext() != null && temp.getNext() != tail) {
+        // Verifica se possui o próximo elemento
+        // E verifica se o próximo elemento não é a cauda
+        while (temp.getNext() != null && temp.getNext() != tail) {
             temp = temp.getNext();
         }
+        // Último elemento aponta para nulo
         temp.setNext(null);
-// Penultimo elemento, se torna o ultimo elemento
+        // Penúltimo elemento, se torna o último elemento
         tail = temp;
-        tail.setNext(null); // ultimo elemento aponta para nulo
         size--;
         return value;
     }
-    /**
-     * Verifica se a lista contém o valor
-     * @param value
-     * @return true se o elemento estiver na lista. caso contrário, false
-     */
+
     public boolean contains(T value) {
         Node<T> temp = head;
-        while(temp != null) {
-            if(temp.getValue().equals(value)) {
+
+        while (temp != null) {
+            if (temp.getValue().equals(value)) {
                 return true;
             }
             temp = temp.getNext();
         }
         return false;
     }
-    /**
-     * Retorna uma lista de objetos com todos os elementos da lista
-     * @return
-     */
+
     public Object[] toArray() {
         Object[] array = new Object[(int) size];
         Node<T> temp = head;
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             array[i] = temp.getValue();
             temp = temp.getNext();
         }
         return array;
     }
 
+    public T get(int index) {
+        if (index < 0 || index >= size) throw new IndexOutOfBoundsException("Index: " + index);
+        Node<T> temp = head;
+        for (int i = 0; i < index; i++) {
+            temp = temp.getNext();
+        }
+        return temp.getValue();
+    }
+
+    public T remove(int index) {
+        if (index >= size  || index < 0) throw new IndexOutOfBoundsException("index "+index);
+        Node<T> temp = head;
+        Node<T> before = null;
+        for (int i = 0; i < index; i++) {
+            before = temp;
+            temp = temp.getNext();
+        }
+        if (before == null) {
+            head = temp.getNext();
+            head.setPrevious(null);
+        } else {
+            before.setNext(temp.getNext());
+            temp.getNext().setPrevious(before);
+            if(temp == tail) {
+                tail = before;
+            }
+        }
+        size--;
+        return temp.getValue();
+    }
+
+    public void add(int index, T value) {
+        if (index > size || index < 0) throw new IndexOutOfBoundsException("index "+index);
+        Node<T> temp = head;
+        Node<T> before = null;
+        for (int i = 0; i < index; i++) {
+            before = temp;
+            temp = temp.getNext();
+        }
+        Node<T> newNode = new Node<T>();
+        newNode.setValue(value);
+        newNode.setNext(temp);
+        newNode.setPrevious(before);
+        if (before == null) {
+            head = newNode;
+        } else {
+            before.setNext(newNode);
+            if (temp == tail) {
+                tail = newNode;
+            }
+        }
+        size++;
+    }
+
+    public void set(int index, T value) {
+        if (index >= size || index < 0) throw new IndexOutOfBoundsException("index "+index);
+        Node<T> temp = head;
+        for (int i = 0; i < index; i++) {
+            temp = temp.getNext();
+        }
+        temp.setValue(value);
+    }
 }
